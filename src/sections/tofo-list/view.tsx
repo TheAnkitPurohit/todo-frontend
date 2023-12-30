@@ -1,26 +1,33 @@
 import { useQuery } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
-import { Rating } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { GridColDef } from '@mui/x-data-grid';
+import { Button, Rating } from '@mui/material';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import productService from 'src/services/productService';
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 
+import todoService from 'src/services/todoService';
+
+import TodoCard from 'src/components/card/TodoCard';
 import CustomizedProgressBars from 'src/components/loader';
 import { useSettingsContext } from 'src/components/settings';
-import ProductTable from 'src/components/table/ProductTable';
+
+import { Todo } from 'src/types/todoTypes';
 
 // ----------------------------------------------------------------------
 
-export default function OneView() {
+export default function TodoList() {
   const settings = useSettingsContext();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['products'],
-    queryFn: productService.getProductList,
+    queryFn: todoService.getAll,
   });
+
+  const router = useRouter();
 
   const ProductColumns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -46,13 +53,27 @@ export default function OneView() {
     },
   ];
 
+  const handleAddTodo = () => {
+    router.push(paths.dashboard.create);
+  };
+
   if (isLoading) {
     return <CustomizedProgressBars />;
   }
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-      <Typography variant="h4"> Product Page </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant="h4"> Todo Page </Typography>
+
+        <Button onClick={handleAddTodo}>Add Todo</Button>
+      </Box>
 
       <Box
         sx={{
@@ -64,7 +85,16 @@ export default function OneView() {
           border: (theme) => `dashed 1px ${theme.palette.divider}`,
         }}
       >
-        <ProductTable data={data} columns={ProductColumns} />
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(5, 1fr)', // Set up five equal-width columns
+            gap: 2, // Adjust the gap as needed
+          }}
+        >
+          {data?.map((todo: Todo) => <TodoCard {...todo} />)}
+        </Box>
+        {/* <ProductTable data={data} columns={ProductColumns} /> */}
       </Box>
     </Container>
   );

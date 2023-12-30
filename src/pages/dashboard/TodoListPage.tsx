@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import ThreeView from 'src/sections/three/view';
+import TodoList from 'src/sections/tofo-list/view';
 
 // ----------------------------------------------------------------------
 
-export default function Page() {
+export default function TodoListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Three</title>
+        <title> TodoList</title>
       </Helmet>
 
-      <ThreeView />
+      <TodoList />
     </>
   );
 }

@@ -55,26 +55,7 @@ export function useNavData() {
           { title: 'two', path: paths.dashboard.two, icon: ICONS.ecommerce },
           {
             title: 'three',
-            path: paths.dashboard.three,
             icon: ICONS.analytics,
-          },
-        ],
-      },
-
-      // MANAGEMENT
-      // ----------------------------------------------------------------------
-      {
-        subheader: 'management',
-        items: [
-          {
-            title: 'user',
-            path: paths.dashboard.group.root,
-            icon: ICONS.user,
-            children: [
-              { title: 'four', path: paths.dashboard.group.root },
-              { title: 'five', path: paths.dashboard.group.five },
-              { title: 'six', path: paths.dashboard.group.six },
-            ],
           },
         ],
       },

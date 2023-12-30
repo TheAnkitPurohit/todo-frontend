@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import OneView from 'src/sections/one/view';
+import TodoDetail from 'src/sections/todo-detail/view';
 
 // ----------------------------------------------------------------------
 
-export default function Page() {
+export default function TodoDetailPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: One</title>
+        <title> TodoDetail</title>
       </Helmet>
 
-      <OneView />
+      <TodoDetail />
     </>
   );
 }

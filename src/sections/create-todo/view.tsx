@@ -1,29 +1,29 @@
 import Box from '@mui/material/Box';
-import { alpha } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { useSettingsContext } from 'src/components/settings';
 
+import TodoForm from '../todo-detail/TodoForm';
+import TodoBackButton from '../todo-detail/TodoBackButton';
+
 // ----------------------------------------------------------------------
 
-export default function ThreeView() {
+export default function CreateTodo() {
   const settings = useSettingsContext();
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-      <Typography variant="h4"> Page Three </Typography>
+      <TodoBackButton />
+      <Typography variant="h4"> Create Todo </Typography>
 
       <Box
         sx={{
           mt: 5,
-          width: 1,
-          height: 320,
-          borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
-          border: (theme) => `dashed 1px ${theme.palette.divider}`,
         }}
-      />
+      >
+        <TodoForm type="create" />
+      </Box>
     </Container>
   );
 }

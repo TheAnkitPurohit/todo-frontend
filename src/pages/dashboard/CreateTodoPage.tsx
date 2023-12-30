@@ -1,17 +1,17 @@
 import { Helmet } from 'react-helmet-async';
 
-import FiveView from 'src/sections/five/view';
+import CreateTodo from 'src/sections/create-todo/view';
 
 // ----------------------------------------------------------------------
 
-export default function Page() {
+export default function CreateTodoPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Five</title>
+        <title> Create </title>
       </Helmet>
 
-      <FiveView />
+      <CreateTodo />
     </>
   );
 }
