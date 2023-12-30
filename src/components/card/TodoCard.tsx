@@ -1,12 +1,17 @@
+/* eslint-disable no-nested-ternary */
 import React from 'react';
 
-import { Box, Paper, Stack, ListItemText } from '@mui/material';
+import { Box, Paper, Stack, alpha, ListItemText } from '@mui/material';
 
 import { useRouter } from 'src/routes/hooks';
 
 import { Todo } from 'src/types/todoTypes';
 
-const TodoCard = ({ created, description, id, name, updated }: Todo) => {
+interface TodoCardProps extends Todo {
+  handleClick: (id: number) => void;
+}
+
+const TodoCard = ({ created, description, id, name, updated, handleClick }: TodoCardProps) => {
   const router = useRouter();
 
   const handleProduct = () => {
@@ -25,16 +30,20 @@ const TodoCard = ({ created, description, id, name, updated }: Todo) => {
         //   maxWidth: 222,
         flex: 1,
         borderRadius: 2,
-        bgcolor: 'unset',
+        // bgcolor: 'unset',
         cursor: 'pointer',
         position: 'relative',
+        bgcolor: (theme) => alpha(theme.palette.info.darker, 0.04),
       }}
     >
-      <Box>
+      <Box onClick={(e) => e.stopPropagation()}>
         <Box
           component="img"
           src="/assets/icons/files/ic_folder.svg"
           sx={{ width: 36, height: 36 }}
+          onClick={() => {
+            handleClick(id);
+          }}
         />
       </Box>
 
@@ -43,7 +52,11 @@ const TodoCard = ({ created, description, id, name, updated }: Todo) => {
         secondary={
           <>
             {/* {fData(folder.size)} */}
-            {description}
+            {description
+              ? description?.length < 50
+                ? description
+                : `${description?.slice(0, 50)}...`
+              : ''}
             {/* <Box
                   component="span"
                   sx={{

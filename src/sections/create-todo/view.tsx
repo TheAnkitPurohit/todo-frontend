@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 
 import { useSettingsContext } from 'src/components/settings';
 
@@ -15,7 +14,6 @@ export default function CreateTodo() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <TodoBackButton />
-      <Typography variant="h4"> Create Todo </Typography>
 
       <Box
         sx={{

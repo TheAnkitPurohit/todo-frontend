@@ -55,7 +55,9 @@ const TodoForm = ({ todo, type }: TodoFormProps) => {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (isCreate) {
+      if (!isCreate && todo?.id) {
+        await todoService.update(todo?.id, data);
+      } else {
         await todoService.create(data);
       }
       reset();
@@ -68,8 +70,13 @@ const TodoForm = ({ todo, type }: TodoFormProps) => {
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Card>
-        <Stack spacing={3} sx={{ p: 3 }}>
+      <Card
+        sx={{
+          p: 3,
+          maxWidth: '50%',
+        }}
+      >
+        <Stack spacing={3}>
           <RHFTextField name="name" label="Name" />
 
           <RHFTextField name="description" label="Description" multiline rows={4} />

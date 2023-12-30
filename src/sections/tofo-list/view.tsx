@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
-import { alpha } from '@mui/material/styles';
-import { GridColDef } from '@mui/x-data-grid';
-import { Button, Rating } from '@mui/material';
+import { Button } from '@mui/material';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -15,6 +15,7 @@ import todoService from 'src/services/todoService';
 import TodoCard from 'src/components/card/TodoCard';
 import CustomizedProgressBars from 'src/components/loader';
 import { useSettingsContext } from 'src/components/settings';
+import DeleteTodoModal from 'src/components/models/DeleteTodoModal';
 
 import { Todo } from 'src/types/todoTypes';
 
@@ -22,39 +23,41 @@ import { Todo } from 'src/types/todoTypes';
 
 export default function TodoList() {
   const settings = useSettingsContext();
+
+  const queryClient = useQueryClient();
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['todos'],
     queryFn: todoService.getAll,
   });
 
   const router = useRouter();
 
-  const ProductColumns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'category', headerName: 'category', width: 130 },
-    { field: 'title', headerName: 'Title', width: 300 },
-    {
-      field: 'price',
-      headerName: 'price',
-      type: 'number',
-      width: 90,
-    },
-    {
-      field: 'rate',
-      headerName: 'Rating',
-      type: 'number',
-      width: 180,
-      renderCell: (params) => (
-        <>
-          <Rating name="half-rating" defaultValue={params?.row?.rating.rate || 0} precision={0.5} />
-          <Typography sx={{ ml: 1 }}>{params?.row?.rating.rate || 0}</Typography>
-        </>
-      ),
-    },
-  ];
-
   const handleAddTodo = () => {
     router.push(paths.dashboard.create);
+  };
+
+  const [open, setOpen] = useState<boolean>(false);
+  const [selectedTodo, setSelectedTodo] = useState<number>();
+
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
+
+  const handleClick = (id: number) => {
+    setSelectedTodo(id);
+    setOpen(true);
+  };
+
+  const handleDeleteTodo = async () => {
+    try {
+      await todoService.delete(selectedTodo as number);
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    } catch (error) {
+      console.log({ error });
+    } finally {
+      setOpen(false);
+      setSelectedTodo(undefined);
+    }
   };
 
   if (isLoading) {
@@ -72,7 +75,14 @@ export default function TodoList() {
       >
         <Typography variant="h4"> Todo Page </Typography>
 
-        <Button onClick={handleAddTodo}>Add Todo</Button>
+        <Button
+          onClick={handleAddTodo}
+          variant="contained"
+          size="medium"
+          startIcon={<AddOutlinedIcon />}
+        >
+          Add Todo
+        </Button>
       </Box>
 
       <Box
@@ -81,8 +91,8 @@ export default function TodoList() {
           width: 1,
           padding: '10px',
           borderRadius: 2,
-          bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
-          border: (theme) => `dashed 1px ${theme.palette.divider}`,
+          // bgcolor: (theme) => alpha(theme.palette.grey[500], 0.04),
+          // border: (theme) => `dashed 1px ${theme.palette.divider}`,
         }}
       >
         <Box
@@ -92,9 +102,14 @@ export default function TodoList() {
             gap: 2, // Adjust the gap as needed
           }}
         >
-          {data?.map((todo: Todo) => <TodoCard {...todo} />)}
+          {data?.map((todo: Todo) => <TodoCard {...todo} handleClick={handleClick} />)}
         </Box>
-        {/* <ProductTable data={data} columns={ProductColumns} /> */}
+
+        <DeleteTodoModal
+          open={open}
+          handleClose={handleCloseModal}
+          handleDelete={handleDeleteTodo}
+        />
       </Box>
     </Container>
   );

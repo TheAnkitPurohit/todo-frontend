@@ -18,8 +18,13 @@ const todoService = {
     return response?.data;
   },
 
-  update: async (todo: any): Promise<any> => {
-    const response: AxiosResponse<any> = await client.put(`/todos/update/${todo.id}`, todo);
+  update: async (id: number, todo: any): Promise<any> => {
+    const response: AxiosResponse<any> = await client.patch(`/todos/update/${id}/`, todo);
+    return response?.data;
+  },
+
+  delete: async (id: number): Promise<any> => {
+    const response: AxiosResponse<any> = await client.delete(`/todos/delete/${id}/`);
     return response?.data;
   },
 };
