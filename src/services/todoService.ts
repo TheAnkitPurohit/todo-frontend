@@ -14,17 +14,17 @@ const todoService = {
   },
 
   create: async (todo: any): Promise<any> => {
-    const response: AxiosResponse<any> = await client.post('/todos/create/', todo);
+    const response: AxiosResponse<any> = await client.post('/todos/', todo);
     return response?.data;
   },
 
   update: async (id: number, todo: any): Promise<any> => {
-    const response: AxiosResponse<any> = await client.patch(`/todos/update/${id}/`, todo);
+    const response: AxiosResponse<any> = await client.put(`/todos/${id}/`, todo);
     return response?.data;
   },
 
   delete: async (id: number): Promise<any> => {
-    const response: AxiosResponse<any> = await client.delete(`/todos/delete/${id}/`);
+    const response: AxiosResponse<any> = await client.delete(`/todos/${id}/`);
     return response?.data;
   },
 };

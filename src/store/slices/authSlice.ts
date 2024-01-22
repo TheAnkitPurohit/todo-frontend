@@ -1,26 +1,29 @@
 /* eslint-disable no-param-reassign */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
-import type { RootState } from "../index";
+import type { RootState } from '../index';
 
 // Define a type for the slice state
-interface AuthState {
+export interface AuthState {
   token: null | string;
+  refreshToken: null | string;
 }
 
 // Define the initial state using that type
 const initialState: AuthState = {
-  token: "",
+  token: '',
+  refreshToken: '',
 };
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     resetState: () => initialState,
     setCredentials: (state, action) => {
-      const { access_token: AcessToken } = action.payload;
-      state.token = AcessToken;
+      const { access, refresh } = action.payload;
+      state.token = access;
+      state.refreshToken = refresh;
     },
   },
 });
@@ -30,3 +33,4 @@ export const { setCredentials, resetState } = authSlice.actions;
 export default authSlice.reducer;
 
 export const selectCurrentToken = (state: RootState) => state.auth.token;
+export const selectCurrentRefreshToken = (state: RootState) => state.auth.refreshToken;

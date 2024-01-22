@@ -30,6 +30,8 @@ export default function TodoList() {
     queryFn: todoService.getAll,
   });
 
+  console.log({ data });
+
   const router = useRouter();
 
   const handleAddTodo = () => {

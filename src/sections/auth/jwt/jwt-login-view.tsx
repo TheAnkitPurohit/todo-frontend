@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
@@ -15,8 +16,10 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
+import useAuth from 'src/hooks/use-auth';
 import { useBoolean } from 'src/hooks/use-boolean';
 
+import authService from 'src/services/authService';
 import { PATH_AFTER_LOGIN } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
@@ -26,6 +29,7 @@ import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 export default function JwtLoginView() {
   const router = useRouter();
+  const { handleSetCredentails } = useAuth();
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -43,12 +47,12 @@ export default function JwtLoginView() {
     password: z.string().refine((data) => data.trim() !== '', { message: 'Password is required' }),
   });
 
-  const defaultValues = {
-    email: 'demo@minimals.cc',
-    password: 'demo1234',
+  const defaultValues: UserLogin = {
+    email: '',
+    password: '',
   };
 
-  const methods = useForm({
+  const methods = useForm<UserLogin>({
     resolver: zodResolver(LoginSchema),
     defaultValues,
   });
@@ -56,24 +60,27 @@ export default function JwtLoginView() {
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      // await login?.(data.email, data.password);
-
+  const mutation = useMutation({
+    mutationFn: authService.login,
+    onSuccess: (data: any) => {
+      handleSetCredentails(data);
       router.push(returnTo || PATH_AFTER_LOGIN);
-    } catch (error) {
-      console.error(error);
-      reset();
-      setErrorMsg(typeof error === 'string' ? error : error.message);
-    }
+    },
+    onError: (error: any) => {
+      setErrorMsg(typeof error === 'string' ? error : error?.response?.data?.detail);
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    mutation.mutate(data);
   });
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5 }}>
-      <Typography variant="h4">Sign in to Minimal</Typography>
+      <Typography variant="h4">Sign in to Account</Typography>
 
       <Stack direction="row" spacing={0.5}>
         <Typography variant="body2">New user?</Typography>
@@ -106,9 +113,9 @@ export default function JwtLoginView() {
         }}
       />
 
-      <Link variant="body2" color="inherit" underline="always" sx={{ alignSelf: 'flex-end' }}>
+      {/* <Link variant="body2" color="inherit" underline="always" sx={{ alignSelf: 'flex-end' }}>
         Forgot password?
-      </Link>
+      </Link> */}
 
       <LoadingButton
         fullWidth
@@ -126,10 +133,6 @@ export default function JwtLoginView() {
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {renderHead}
-
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Use email : <strong>demo@minimals.cc</strong> / password :<strong> demo1234</strong>
-      </Alert>
 
       {renderForm}
     </FormProvider>

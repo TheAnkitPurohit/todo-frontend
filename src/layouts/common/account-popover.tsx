@@ -1,7 +1,7 @@
 import { m } from 'framer-motion';
+import { useMutation } from '@tanstack/react-query';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import { alpha } from '@mui/material/styles';
@@ -11,45 +11,39 @@ import Typography from '@mui/material/Typography';
 
 import { useRouter } from 'src/routes/hooks';
 
+import useAuth from 'src/hooks/use-auth';
 import { useMockedUser } from 'src/hooks/use-mocked-user';
+
+import authService from 'src/services/authService';
+import { PATH_AFTER_REGISTER } from 'src/config-global';
 
 import { varHover } from 'src/components/animate';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-const OPTIONS = [
-  {
-    label: 'Home',
-    linkTo: '/',
-  },
-  {
-    label: 'Profile',
-    linkTo: '/#1',
-  },
-  {
-    label: 'Settings',
-    linkTo: '/#2',
-  },
-];
-
-// ----------------------------------------------------------------------
-
 export default function AccountPopover() {
   const router = useRouter();
+  const { handleResetAuth, refreshToken } = useAuth();
 
   const { user } = useMockedUser();
 
   const popover = usePopover();
 
+  const mutation = useMutation({
+    mutationFn: authService.logout,
+    onSuccess: () => {
+      handleLogout();
+    },
+    onError: () => {
+      handleLogout();
+    },
+  });
+
   const handleLogout = async () => {
-    try {
-      // await logout();
-      popover.onClose();
-      router.replace('/');
-    } catch (error) {
-      console.error(error);
-    }
+    handleResetAuth();
+    popover.onClose();
+    router.push(PATH_AFTER_REGISTER);
   };
 
   const handleClickItem = (path: string) => {
@@ -101,18 +95,12 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Stack sx={{ p: 1 }}>
-          {OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={() => handleClickItem(option.linkTo)}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Stack>
-
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem
-          onClick={handleLogout}
+          onClick={() => {
+            mutation.mutate(refreshToken);
+          }}
           sx={{ m: 1, fontWeight: 'fontWeightBold', color: 'error.main' }}
         >
           Logout

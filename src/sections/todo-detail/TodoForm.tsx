@@ -47,8 +47,6 @@ const TodoForm = ({ todo, type }: TodoFormProps) => {
 
   const {
     reset,
-    watch,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;

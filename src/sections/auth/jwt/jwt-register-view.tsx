@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Link from '@mui/material/Link';
@@ -17,7 +18,8 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 
-import { PATH_AFTER_LOGIN } from 'src/config-global';
+import authService from 'src/services/authService';
+import { PATH_AFTER_REGISTER } from 'src/config-global';
 
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
@@ -36,10 +38,7 @@ export default function JwtRegisterView() {
   const password = useBoolean();
 
   const RegisterSchema = z.object({
-    firstName: z
-      .string()
-      .refine((data) => data.trim() !== '', { message: 'First name is required' }),
-    lastName: z.string().refine((data) => data.trim() !== '', { message: 'Last name is required' }),
+    name: z.string().refine((data) => data.trim() !== '', { message: 'User Name is required' }),
     email: z
       .string()
       .email('Email must be a valid email address')
@@ -47,34 +46,34 @@ export default function JwtRegisterView() {
     password: z.string().refine((data) => data.trim() !== '', { message: 'Password is required' }),
   });
 
-  const defaultValues = {
-    firstName: '',
-    lastName: '',
+  const defaultValues: UserRegister = {
+    name: '',
     email: '',
     password: '',
   };
 
-  const methods = useForm({
+  const methods = useForm<UserRegister>({
     resolver: zodResolver(RegisterSchema),
     defaultValues,
   });
 
   const {
-    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      // await register?.(data.email, data.password, data.firstName, data.lastName);
-
-      router.push(returnTo || PATH_AFTER_LOGIN);
-    } catch (error) {
-      console.error(error);
-      reset();
+  const mutation = useMutation({
+    mutationFn: authService.register,
+    onSuccess: () => {
+      router.push(returnTo || PATH_AFTER_REGISTER);
+    },
+    onError: (error: any) => {
       setErrorMsg(typeof error === 'string' ? error : error.message);
-    }
+    },
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    mutation.mutate(data);
   });
 
   const renderHead = (
@@ -91,37 +90,12 @@ export default function JwtRegisterView() {
     </Stack>
   );
 
-  const renderTerms = (
-    <Typography
-      component="div"
-      sx={{
-        color: 'text.secondary',
-        mt: 2.5,
-        typography: 'caption',
-        textAlign: 'center',
-      }}
-    >
-      {'By signing up, I agree to '}
-      <Link underline="always" color="text.primary">
-        Terms of Service
-      </Link>
-      {' and '}
-      <Link underline="always" color="text.primary">
-        Privacy Policy
-      </Link>
-      .
-    </Typography>
-  );
-
   const renderForm = (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={2.5}>
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <RHFTextField name="firstName" label="First name" />
-          <RHFTextField name="lastName" label="Last name" />
-        </Stack>
+        <RHFTextField name="name" label="User Name" />
 
         <RHFTextField name="email" label="Email address" />
 
@@ -157,10 +131,7 @@ export default function JwtRegisterView() {
   return (
     <>
       {renderHead}
-
       {renderForm}
-
-      {renderTerms}
     </>
   );
 }
